@@ -10,7 +10,6 @@ This study only considers in the following acoustic properties
 - **Amplitude**
 - **Intensity**
 - **Duration of sound**
-- **Duration of time the subject takes to rates the emotion they feel**
 - **Brightness**
 - **Roughness**
 - **Sharpness**
