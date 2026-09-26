@@ -121,6 +121,40 @@ impl SoundManager {
             signal[i] = sample_val // store the val in the array (so we can plot on graph then find the wave)
         }
 
+        if roughness > 0.0 {
+            let beat_rate = 15.0 + (roughness * 35.0); // creates a range from 15 to 35
+            for (index, sample) in signal.iter_mut().enumerate() {
+                let time = index as f64 / sample_rate as f64;
+                let cycles = (2.0 * std::f64::consts::PI * beat_rate * time).sin();
+                /* 
+                    (2.0 * std::f64::consts::PI * beat_rate * t).sin()
+                    is basically:
+                        sin(2 * pi * frequency * time) 
+                    the formula is used to find how far up the graph is on the y axis at a
+                    specific time
+                    _NOTE: range right now the range (-1.0, 1.0) we want positive numbers
+                */
+                let positive_cycles = cycles + 1.0;
+                /*
+                    + 1.0 increases the range to positive values:
+                        Lower bound: -1.0 + 1.0 = 0.0
+                        Upper bound: +1.0 + 1.0 = 2.0
+                    new range (0.0, 2.0)
+                    You might be thinking "cant i use abs()", here is why you cant use it:
+                        Lower bound: abs(-1.0) -> 1.0
+                        Upper bound: abs(+1.0) -> 1.0
+                    now the new "range" is 1.0 to 1.0
+                    but the thing is, its actually 0.0 to 1.0 because:
+                        Middle bound: abs(0.0) -> 0.0
+                    0.0 to 1.0 reduces the range (since the old range is much bigger, -1.0 to 1.0,
+                    we basically got "rid" half of the range)
+                */
+                let max_volume_reduction = roughness * 0.4;
+                let modulator = 1.0 - (max_volume_reduction * positive_cycles);
+                *sample *= modulator;
+            }
+        }
+
         Ok(())
     }
 }
